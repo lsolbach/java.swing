@@ -9,10 +9,6 @@
   :middleware [lein-tools-deps.plugin/resolve-dependencies-with-deps-edn]
   :lein-tools-deps/config {:config-files [:install :user :project]}
 
-;  :dependencies [[org.clojure/clojure "1.10.1"]
-;                 [swing-utils/swing-utils "0.2.0" :exclusions [org.clojure/clojure]]
-;                 [org.soulspace.clj/clj.java "0.8.0"]
-;                 [com.miglayout/miglayout "3.7.4"]]
-
   :test-paths ["test"]
+  :scm {:name "git" :url "https://github.com/soulspace-org/clj.swing"}
   :deploy-repositories [["clojars" {:sign-releases false :url "https://clojars.org/repo"}]])
