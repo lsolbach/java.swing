@@ -14,27 +14,21 @@
   "Functions to create Swing user interfaces."
   (:require [org.soulspace.clj.core :as fn]
             [org.soulspace.clj.java.beans :as b])
-  (:import [java.awt CardLayout Event]
+  (:import [java.awt CardLayout]
            [java.awt.event ActionEvent]
            [javax.swing Action AbstractAction AbstractListModel Action BorderFactory ButtonGroup
             ImageIcon InputVerifier
-            JButton JCheckBox JCheckBoxMenuItem JColorChooser JComboBox JComponent JDesktopPane JDialog
+            JButton JCheckBox JCheckBoxMenuItem JColorChooser JComboBox JComponent JDialog
             JEditorPane JFileChooser JFormattedTextField JFrame JLabel JLayeredPane JList
             JMenu JMenuBar JMenuItem JOptionPane JPanel JPasswordField JPopupMenu JProgressBar
             JRadioButton JRadioButtonMenuItem JSeparator JScrollPane JSlider JSpinner
             JSplitPane JTabbedPane JTable JTextArea JTextField JTextPane JToggleButton JToolBar
             JTree JWindow
             KeyStroke ListSelectionModel SwingConstants SwingUtilities UIManager WindowConstants]
-           [javax.swing.event AncestorListener CaretListener CellEditorListener ChangeListener DocumentListener
-            HyperlinkListener InternalFrameListener ListDataListener ListSelectionListener
-            MenuDragMouseListener MenuKeyListener MenuListener MouseInputListener PopupMenuListener
-            RowSorterListener TableColumnModelListener TableModelListener
-            TreeExpansionListener TreeModelListener TreeSelectionListener TreeWillExpandListener
-            UndoableEditListener]
            [javax.swing.table AbstractTableModel DefaultTableCellRenderer]
            [javax.swing.text MaskFormatter]
            [javax.swing.tree DefaultMutableTreeNode]
-           [java.text DateFormat Format NumberFormat ParseException]
+           [java.text Format NumberFormat ParseException]
            [net.miginfocom.swing MigLayout]))
 
 ;;;
