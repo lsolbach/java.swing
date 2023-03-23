@@ -1,19 +1,22 @@
-;;
-;;   Copyright (c) Ludger Solbach. All rights reserved.
-;;   The use and distribution terms for this software are covered by the
-;;   Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
-;;   which can be found in the file license.txt at the root of this distribution.
-;;   By using this software in any fashion, you are agreeing to be bound by
-;;   the terms of this license.
-;;   You must not remove this notice, or any other, from this software.
-;;
+;;;;
+;;;;   Copyright (c) Ludger Solbach. All rights reserved.
+;;;;
+;;;;   The use and distribution terms for this software are covered by the
+;;;;   Eclipse Public License 1.0 (http://opensource.org/licenses/eclipse-1.0.php)
+;;;;   which can be found in the file license.txt at the root of this distribution.
+;;;;   By using this software in any fashion, you are agreeing to be bound by
+;;;;   the terms of this license.
+;;;;
+;;;;   You must not remove this notice, or any other, from this software.
+;;;;
 
-(ns org.soulspace.clj.java.awt
+(ns org.soulspace.clj.java.awt.core
+  "Functions and definitions for programming Java AWT in Clojure."
   (:import [java.awt BasicStroke Color Dimension Event Font GradientPaint Graphics2D Insets TexturePaint]))
 
-;;
-;; Functions and definitions for Java AWT
-;;
+;;;;
+;;;; Functions and definitions for Java AWT
+;;;;
 
 ;;
 ;; constant maps

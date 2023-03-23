@@ -2,7 +2,10 @@ clj.swing
 =========
 The clj.swing library contains functions for the creation of Java Swing user interfaces with clojure.
 
-clj.swing uses clj.java.
+It wraps many components and methods form java.awt and javax.swing packages and is capable of creating complex swing user interfaces. It also wraps [MigLayout](https://github.com/mikaelgrev/miglayout) for creating easy layouts.
+
+For an example application with a UI build with clj.swing see [Annuity](https://github.com/lsolbach/Annuity), an application to calculate annuity credits/loans.
+
 
 Usage
 -----
@@ -12,7 +15,7 @@ Add the dependency:
 
 Copyright
 ---------
-© 2011-2021 Ludger Solbach
+© 2011-2023 Ludger Solbach
 
 License
 -------
@@ -20,4 +23,4 @@ License
 
 Code Repository
 ---------------
-[CljBase on GitHub](https://github.com/soulspace-org/clj.swing)
+[clj.swing on GitHub](https://github.com/soulspace-org/clj.swing)
