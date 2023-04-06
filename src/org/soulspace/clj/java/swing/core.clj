@@ -136,11 +136,11 @@
 ; Helpers
 (defn init-swing
   "Intitializes a swing component with the arguments and items."
-  ([c args]
+  ([^Container c args]
    (if (seq args)
      (b/set-properties! c args))
    c)
-  ([c args items]
+  ([^Container c args items]
    (if (seq args)
      (b/set-properties! c args))
    (if (seq items)
@@ -165,7 +165,7 @@
   "Creates an input verifier for a formatted text field."
   ^InputVerifier []
   (proxy [InputVerifier] []
-    (verify [c]
+    (verify [^JFormattedTextField c]
       (let [fmt (.getFormatter c)
             txt (.getText c)]
         (try
@@ -208,10 +208,10 @@
 
 (defn add-key-binding
   "Adds a key binding for an action to the input map of the component."
-  ([c binding-name stroke action]
+  ([^JComponent c ^String binding-name ^KeyStroke stroke ^Action action]
    (.put (.getActionMap c) binding-name action)
    (.put (get-input-map c) stroke binding-name))
-  ([c focus-key binding-name stroke action]
+  ([^JComponent c focus-key ^String binding-name ^KeyStroke stroke ^Action action]
    (.put (.getActionMap c) binding-name action)
    (.put (get-input-map c focus-key) stroke binding-name)))
 
