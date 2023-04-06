@@ -78,14 +78,12 @@
 ;; font
 (defn font
   "Creates a font."
-  ([font]
+  (^Font [^Font font]
    (Font. font))
-  ([font-name style-vec size]
+  (^Font [^String font-name style-vec size]
    (Font. font-name (reduce + style-vec) size)))
 
 (defn derive-font
   "Derives a font from the given font."
-  ([font style-vec]
-   (.derive font (reduce + style-vec)))
-  ([fontname style-vec size]
-   (.derive font (reduce + style-vec) size)))
+  (^Font [^Font font style-vec]
+   (.deriveFont font (reduce + style-vec))))

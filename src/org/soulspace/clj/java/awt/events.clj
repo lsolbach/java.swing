@@ -268,11 +268,6 @@
     (windowStateChanged [event] (apply f event args))))
 
 ; Add listeners
-(defn add-action-listener
-  "Adds an action listener to the component."
-  [c ^java.awt.event.ActionListener l]
-  (.addActionListener c l))
-
 (defn add-component-listener
   "Adds a component listener to the component."
   [^java.awt.Component c ^java.awt.event.ComponentListener l]
@@ -297,11 +292,6 @@
   "Adds a input method listener to the component."
   [^java.awt.Component c ^java.awt.event.InputMethodListener l]
   (.addInputMethodListener c l))
-
-(defn add-item-listener
-  "Adds an item listener to the component."
-  [c ^java.awt.event.ItemListener l]
-  (.addItemListener c l))
 
 (defn add-key-listener
   "Adds a key listener to the component."
