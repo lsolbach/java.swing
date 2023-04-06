@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.8.1
+-------------
+* added type hints to swing.core
+* fixed missing valúe in .setAllowsInvalid
+
 Version 0.8.0
 -------------
 * moved namespace org.soulspace.clj.java.awt to org.soulspace.clj.java.awt.core
