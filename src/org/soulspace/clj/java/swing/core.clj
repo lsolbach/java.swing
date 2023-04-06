@@ -25,12 +25,13 @@
             JRadioButton JRadioButtonMenuItem JSeparator JScrollPane JSlider JSpinner
             JSplitPane JTabbedPane JTable JTextArea JTextField JTextPane
             JToggleButton JToolBar JTree JWindow
-            KeyStroke ListSelectionModel SwingConstants SwingUtilities
+            KeyStroke ListSelectionModel LookAndFeel SwingConstants SwingUtilities
             UIManager WindowConstants]
            [javax.swing.border TitledBorder]
            [javax.swing.table AbstractTableModel DefaultTableCellRenderer]
            [javax.swing.text DefaultFormatter JTextComponent MaskFormatter]
            [javax.swing.tree DefaultMutableTreeNode]
+           [java.net URL]
            [java.text Format NumberFormat ParseException]
            [net.miginfocom.swing MigLayout]))
 
@@ -147,10 +148,10 @@
      (doseq [item items]
        (if (vector? item)
          ; vector contains child and constraints for it
-         (let [[child constraint] item]
+         (let [[^Container child ^Object constraint] item]
            (.add c child constraint))
          ; child without constraints
-         (.add c item))))
+         (.add c ^Container item))))
    c))
 
 ; InputVerifier
@@ -173,8 +174,8 @@
           true
           (catch ParseException e
             false))))
-    (shouldYieldFocus [c]
-      (.verify this c))))
+    (shouldYieldFocus [^JFormattedTextField c]
+      (.verify ^InputVerifier this c))))
 
 ; Actions
 (defn action
@@ -220,20 +221,20 @@
   []
   (->>
     (UIManager/getInstalledLookAndFeels)
-    (map (fn [lnf] [(.getName lnf) (.getClassName lnf)]))
+    (map (fn [^LookAndFeel lnf] [(.getName lnf) (.getClassName lnf)]))
     (reduce (fn [map [k v]] (assoc map k v)) {})))
 
 (defn look-and-feel-available?
   "Checks the availability of the given look and feel by name."
-  ([lnf]
+  ([^LookAndFeel lnf]
    (look-and-feel-available? (installed-look-and-feels) lnf))
-  ([installed-lnfs lnf]
+  ([installed-lnfs ^LookAndFeel lnf]
    (contains? installed-lnfs lnf)))
 
 ; Look and feel
 (defn set-look-and-feel
   "Sets the look and feel given by for the given frame (if it is available)."
-  [frame lnf]
+  [^JFrame frame ^LookAndFeel lnf]
   (let [installed-lnfs (installed-look-and-feels)]
     (when (look-and-feel-available? installed-lnfs lnf)
       (UIManager/setLookAndFeel (installed-lnfs lnf))
@@ -242,23 +243,23 @@
 ; Icons
 (defn image-icon
   "Creates an image icon from the image data of the given URL."
-  ^ImageIcon [url args]
+  ^ImageIcon [^URL url args]
   (init-swing (ImageIcon. url) args))
 
 ; Borders
 (defn titled-border
   "Creates a titled border."
-  ^TitledBorder [title]
+  ^TitledBorder [^String title]
   (BorderFactory/createTitledBorder title))
 
 (defn show-component
   "Shows the component by setting its visibility to true."
-  [c]
+  [^Component c]
   (.setVisible c true))
 
 (defn hide-component
   "Hides the component by setting its visibility to false."
-  [c]
+  [^Component c]
   (.setVisible c false))
 
 
@@ -460,7 +461,7 @@
 (defn combo-box
   "Creates a combo box."
   ^JComboBox [args items]
-  (let [c (init-swing (JComboBox.) args)]
+  (let [^JComboBox c (init-swing (JComboBox.) args)]
     (if (not (nil? items))
       (doseq [item items]
         (.addItem c item)))
@@ -577,9 +578,9 @@
 (defn tabbed-pane
   "Creates a tabbed pane."
   ^JTabbedPane [args items]
-  (let [ c (init-swing (JTabbedPane.) args)]
+  (let [^JTabbedPane c (init-swing (JTabbedPane.) args)]
     (if (not (nil? items))
-      (doseq [[title component] items]
+      (doseq [[^String title ^Component component] items]
         (.addTab c title component)))
     c))
 
@@ -599,9 +600,10 @@
   (init-swing
     (proxy [javax.swing.JPanel] []
       (paintComponent [^java.awt.Graphics g]
-        (proxy-super paintComponent g)
-        (paint-fn g)))
-    args items))
+        (let [^javax.swing.JComponent this this]
+          (proxy-super paintComponent g)
+          (paint-fn g))))
+      args items))
 
 (defn frame
   "Creates a frame."
@@ -609,8 +611,8 @@
   (let [c (JFrame.)]
     (b/set-properties! c args)
     (if (seq cp-items)
-      (doseq [item cp-items]
-        (.add (.getContentPane c) item)))
+      (doseq [^Component item cp-items]
+        (.add ^Container (.getContentPane c) item)))
     c))
 
 (defn window
@@ -619,8 +621,8 @@
   (let [c (JWindow.)]
     (b/set-properties! c args)
     (if (seq cp-items)
-      (doseq [item cp-items]
-        (.add (.getContentPane c) item)))
+      (doseq [^Component item cp-items]
+        (.add ^Container (.getContentPane c) item)))
     c))
 
 (defn dialog
@@ -629,7 +631,7 @@
    (let [c (JDialog.)]
      (b/set-properties! c args)
      (if (seq cp-items)
-       (doseq [item cp-items]
+       (doseq [^Component item cp-items]
          (.add (.getContentPane c) item)))
      (.pack c)
      c))
@@ -637,7 +639,7 @@
    (let [c (JDialog. frame)]
      (b/set-properties! c args)
      (if (seq cp-items)
-       (doseq [item cp-items]
+       (doseq [^Component item cp-items]
          (.add (.getContentPane c) item)))
      (.pack c)
      (.setLocationRelativeTo c frame)
@@ -674,10 +676,10 @@
   "Creates a message dialog."
   ([^String text]
    (JOptionPane/showMessageDialog nil text))
-  ([^String text title type]
+  ([^String text ^String title type]
    (JOptionPane/showMessageDialog
      nil text title (option-pane-message-keys type)))
-  ([text title type icon]
+  ([^String text ^String title type icon]
    (JOptionPane/showMessageDialog
      nil text title (option-pane-message-keys type) icon)))
 
@@ -720,7 +722,7 @@
      (getTableCellRendererComponent [table value isSelected hasFocus row column]
        (let [result (proxy-super getTableCellRendererComponent table value isSelected hasFocus row column)]
          (b/set-properties! this args)
-         (.setText this (rf value))
+         (.setText this ^String (rf value))
          result)))))
 
 
