@@ -137,21 +137,21 @@
 ; Helpers
 (defn init-swing
   "Intitializes a swing component with the arguments and items."
-  ([^Container c args]
+  ([c args]
    (if (seq args)
      (b/set-properties! c args))
    c)
-  ([^Container c args items]
+  ([c args items]
    (if (seq args)
      (b/set-properties! c args))
    (if (seq items)
      (doseq [item items]
        (if (vector? item)
          ; vector contains child and constraints for it
-         (let [[^Container child ^Object constraint] item]
+         (let [[child constraint] item]
            (.add c child constraint))
          ; child without constraints
-         (.add c ^Container item))))
+         (.add c item))))
    c))
 
 ; InputVerifier
@@ -635,14 +635,14 @@
          (.add (.getContentPane c) item)))
      (.pack c)
      c))
-  (^JDialog [^JFrame frame args cp-items]
-   (let [c (JDialog. frame)]
+  (^JDialog [parent args cp-items]
+   (let [c (JDialog. parent)]
      (b/set-properties! c args)
      (if (seq cp-items)
        (doseq [^Component item cp-items]
          (.add (.getContentPane c) item)))
      (.pack c)
-     (.setLocationRelativeTo c frame)
+     (.setLocationRelativeTo c parent)
      c)))
 
 ;;

@@ -4,7 +4,8 @@ Changelog
 Version 0.8.1
 -------------
 * added type hints to swing.core
-* fixed missing valúe in .setAllowsInvalid
+* fixed missing value in .setAllowsInvalid
+* added compilation tests
 
 Version 0.8.0
 -------------
