@@ -10,8 +10,8 @@
 ;;;;   You must not remove this notice, or any other, from this software.
 ;;;;
 
-(ns org.soulspace.clj.java.swing.core-test
+(ns org.soulspace.clj.java.text-test
   (:require [clojure.test :refer :all]
-            [org.soulspace.clj.java.swing.core :as swing]))
+            [org.soulspace.clj.java.text :as text]))
 
 ;; compilation test, ensures compilation of the required namespace
