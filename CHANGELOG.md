@@ -1,10 +1,15 @@
 Changelog
 =========
 
-Version 0.8.1
+Version 0.8.2
 -------------
 * enhanced mapseq-table-model and seq-list-model to work with global state atoms
 
+Version 0.8.1
+-------------
+* added type hints to swing.core
+* fixed missing value in .setAllowsInvalid
+* added compilation tests
 
 Version 0.8.0
 -------------

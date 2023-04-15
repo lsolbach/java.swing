@@ -12,9 +12,12 @@
 
 (ns org.soulspace.clj.java.awt.graphics
   "Functions for creating graphics with AWT."
-  (:import [java.awt BasicStroke Color Dimension Font GradientPaint Graphics2D Image Point RenderingHints TexturePaint]
-           [java.awt.geom Arc2D$Double CubicCurve2D$Double Dimension2D Ellipse2D$Double
-            Line2D$Double Point2D$Double Rectangle2D$Double RoundRectangle2D$Double QuadCurve2D$Double]
+  (:import [java.awt BasicStroke Color Dimension Font GradientPaint Graphics2D Image
+            Point RenderingHints Shape TexturePaint]
+           [java.awt.geom Arc2D Arc2D$Double CubicCurve2D CubicCurve2D$Double
+            Dimension2D Ellipse2D Ellipse2D$Double
+            Line2D Line2D$Double Point2D Point2D$Double Rectangle2D Rectangle2D$Double
+            RoundRectangle2D RoundRectangle2D$Double QuadCurve2D QuadCurve2D$Double]
            [java.awt.image BufferedImage]
            [javax.imageio ImageIO]))
 
@@ -111,88 +114,88 @@
 ; Paint
 (defn gradient-paint
   "Create a gradient paint."
-  ([p1 color1 p2 color2]
+  (^GradientPaint [p1 color1 p2 color2]
    (GradientPaint. p1 color1 p2 color2))
-  ([p1 color1 p2 color2 cyclic]
+  (^GradientPaint [p1 color1 p2 color2 cyclic]
    (GradientPaint. p1 color1 p2 color2 cyclic))
-  ([x1 y1 color1 x2 y2 color2]
+  (^GradientPaint [x1 y1 color1 x2 y2 color2]
    (GradientPaint. x1 y1 color1 x2 y2 color2))
-  ([x1 y1 color1 x2 y2 color2 cyclic]
+  (^GradientPaint [x1 y1 color1 x2 y2 color2 cyclic]
    (GradientPaint. x1 y1 color1 x2 y2 color2 cyclic)))
 
 (defn texture-paint
   "Create a texture paint."
-  [texture anchor]
+  ^TexturePaint [texture anchor]
   (TexturePaint. texture anchor))
 
 ; Stroke
 (defn basic-stroke
   "Creates basic strokes."
-  ([]
+  (^BasicStroke []
    (BasicStroke.))
-  ([width]
+  (^BasicStroke [width]
    (BasicStroke. width))
-  ([width cap-style join-style]
+  (^BasicStroke [width cap-style join-style]
    (BasicStroke. width cap-style join-style))
-  ([width cap-style join-style miter-limit]
+  (^BasicStroke [width cap-style join-style miter-limit]
    (BasicStroke. width cap-style join-style miter-limit))
-  ([width cap-style join-style miter-limit dash dash-phase]
+  (^BasicStroke [width cap-style join-style miter-limit dash dash-phase]
     ; TODO check that into-array works as expected
    (BasicStroke. width cap-style join-style miter-limit (into-array dash) dash-phase)))
 
 (defn arc2d
   "Creates a 2d arc."
-  ([ellipse-bounds start extend arc-type]
+  (^Arc2D [ellipse-bounds start extend arc-type]
    (Arc2D$Double. ellipse-bounds start extend arc-type))
-  ([x y w h start extend arc-type]
+  (^Arc2D [x y w h start extend arc-type]
    (Arc2D$Double. x y w h start extend arc-type)))
 
 (defn cubic-curve2d
   "Creates a 2d cubic curve."
-  [x1 y1 ctrlx1 ctrly1 ctrlx2 ctrly2 x2 y2]
+  ^CubicCurve2D [x1 y1 ctrlx1 ctrly1 ctrlx2 ctrly2 x2 y2]
   (CubicCurve2D$Double. x1 y1 ctrlx1 ctrly1 ctrlx2 ctrly2 x2 y2))
 
 (defn centered-circle2d
   "Creates a 2d ellipse reperesenting a circle with the center x, y and radius r."
-  [x y r]
+  ^Ellipse2D [x y r]
   (let [d (* 2 r)]
     (Ellipse2D$Double. (- x r) (- y r) d d)))
 
 (defn ellipse2d
   "Creates a 2d ellipse."
-  [x y w h]
+  ^Ellipse2D [x y w h]
   (Ellipse2D$Double. x y w h))
 
 (defn line2d
   "Creates a 2d line."
-  ([[x1 y1] [x2 y2]]
+  (^Line2D [[x1 y1] [x2 y2]]
    (line2d x1 y1 x2 y2))
-  ([x1 y1 x2 y2]
+  (^Line2D[x1 y1 x2 y2]
    (Line2D$Double. x1 y1 x2 y2)))
 
 (defn point2d
   "Creates a 2d point."
-  [x y]
+  ^Point2D [x y]
   (Point2D$Double. x y))
 
 (defn point-coordinates
   "Returns the x/y coordinates of the point."
-  [point]
+  [^Point point]
   [(.getX point) (.getY point)])
 
 (defn quad-curve2d
   "Creates a 2d quadratic curve."
-  [x1 y1 ctrlx ctrly x2 y2]
+  ^QuadCurve2D [x1 y1 ctrlx ctrly x2 y2]
   (QuadCurve2D$Double. x1 y1 ctrlx ctrly x2 y2))
 
 (defn rectangle2d
   "Creates a 2d rectangle."
-  [x y w h]
+  ^Rectangle2D [x y w h]
   (Rectangle2D$Double. x y w h))
 
 (defn round-rectangle2d
   "Creates a 2d rounded rectangle."
-  [x y w h arc-w arc-h]
+  ^RoundRectangle2D [x y w h arc-w arc-h]
   (RoundRectangle2D$Double. x y w h arc-w arc-h))
 
 ;;
@@ -216,16 +219,17 @@
 
 (defn draw
   "Draws an element."
-  ([^java.awt.Graphics2D gfx e]
+  ([^java.awt.Graphics2D gfx ^Shape e]
    (.draw gfx e))
-  ([^java.awt.Graphics2D gfx e color]
-   (.draw gfx e color)))
+  ([^java.awt.Graphics2D gfx ^Shape e color]
+   (.setColor gfx color)
+   (.draw gfx e)))
 
 (defn fill
   "Draws a filled element."
-  ([^java.awt.Graphics2D gfx e]
+  ([^java.awt.Graphics2D gfx ^Shape e]
    (.fill gfx e))
-  ([^java.awt.Graphics2D gfx e color]
+  ([^java.awt.Graphics2D gfx ^Shape e color]
    (.setColor gfx color)
    (.fill gfx e)))
 
@@ -300,7 +304,7 @@
 (defn draw-image
   "Draws an image using the graphics context."
   ([^java.awt.Graphics2D gfx ^java.awt.Image img x y]
-   (.drawImage gfx img x y nil)))
+   (.drawImage gfx img nil x y)))
 
 ;;
 ;;

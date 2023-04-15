@@ -94,6 +94,11 @@
 ;; Add listeners
 ;;
 
+(defn add-action-listener
+  "Adds an action listener to the component."
+  [c ^java.awt.event.ActionListener l]
+  (.addActionListener c l))
+
 (defn add-ancestor-listener
   "Adds an ancestor listener to the JComponent."
   [^javax.swing.JComponent c ^javax.swing.event.AncestorListener l]
@@ -101,8 +106,13 @@
 
 (defn add-change-listener
   "Adds a change listener to the JComponent."
-  [^javax.swing.JComponent c ^javax.swing.event.ChangeListener l]
+  [c ^javax.swing.event.ChangeListener l]
   (.addChangeListener c l))
+
+(defn add-item-listener
+  "Adds an item listener to the component."
+  [^java.awt.ItemSelectable c ^java.awt.event.ItemListener l]
+  (.addItemListener c l))
 
 (defn add-list-selection-listener
   "Adds a change listener to the JComponent."
@@ -111,5 +121,5 @@
 
 (defn add-popup-menu-listener
   "Adds a popup menu listener to the component."
-  [^javax.swing.JComponent c ^javax.swing.event.PopupMenuListener l]
+  [c ^javax.swing.event.PopupMenuListener l]
   (.addPopupMenuListener c l))

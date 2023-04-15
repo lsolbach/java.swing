@@ -11,23 +11,27 @@
 ;;;;
 
 (ns org.soulspace.clj.java.swing.core
-  "Functions to create Swing user interfaces."
+  "Functions to create Java Swing user interfaces.
+   See the Java AWT and Swing API references for details."
   (:require [org.soulspace.clj.core :as fn]
             [org.soulspace.clj.java.beans :as b])
-  (:import [java.awt CardLayout]
+  (:import [java.awt CardLayout Color Component Container]
            [java.awt.event ActionEvent]
-           [javax.swing Action AbstractAction AbstractListModel Action BorderFactory ButtonGroup
-            ImageIcon InputVerifier
+           [javax.swing Action AbstractAction AbstractListModel Action BorderFactory
+            ButtonGroup ImageIcon InputMap InputVerifier
             JButton JCheckBox JCheckBoxMenuItem JColorChooser JComboBox JComponent JDialog
             JEditorPane JFileChooser JFormattedTextField JFrame JLabel JLayeredPane JList
             JMenu JMenuBar JMenuItem JOptionPane JPanel JPasswordField JPopupMenu JProgressBar
             JRadioButton JRadioButtonMenuItem JSeparator JScrollPane JSlider JSpinner
-            JSplitPane JTabbedPane JTable JTextArea JTextField JTextPane JToggleButton JToolBar
-            JTree JWindow
-            KeyStroke ListSelectionModel SwingConstants SwingUtilities UIManager WindowConstants]
+            JSplitPane JTabbedPane JTable JTextArea JTextField JTextPane
+            JToggleButton JToolBar JTree JWindow
+            KeyStroke ListSelectionModel LookAndFeel SwingConstants SwingUtilities
+            UIManager WindowConstants]
+           [javax.swing.border TitledBorder]
            [javax.swing.table AbstractTableModel DefaultTableCellRenderer]
-           [javax.swing.text MaskFormatter]
+           [javax.swing.text DefaultFormatter JTextComponent MaskFormatter]
            [javax.swing.tree DefaultMutableTreeNode]
+           [java.net URL]
            [java.text Format NumberFormat ParseException]
            [net.miginfocom.swing MigLayout]))
 
@@ -161,16 +165,16 @@
 
 (defn input-verifier
   "Creates an input verifier with the verify function 'vf' and the yield function 'yf'."
-  [vf yf & args]
+  ^InputVerifier [vf yf & args]
   (proxy [InputVerifier] []
     (verify [component] (vf component))
     (shouldYieldFocus [component] (yf component args))))
 
 (defn formatted-text-field-verifier
   "Creates an input verifier for a formatted text field."
-  []
+  ^InputVerifier []
   (proxy [InputVerifier] []
-    (verify [c]
+    (verify [^JFormattedTextField c]
       (let [fmt (.getFormatter c)
             txt (.getText c)]
         (try
@@ -178,8 +182,8 @@
           true
           (catch ParseException e
             false))))
-    (shouldYieldFocus [c]
-      (.verify this c))))
+    (shouldYieldFocus [^JFormattedTextField c]
+      (.verify ^InputVerifier this c))))
 
 ;;;
 ;;; Actions
@@ -187,11 +191,11 @@
 
 (defn action
   "Creates an action."
-  ([f]
+  (^AbstractAction [f]
    (let [action (proxy [AbstractAction] []
                   (actionPerformed [evt] (f evt)))]
      action))
-  ([f args]
+  (^AbstractAction [f args]
    (let [action (proxy [AbstractAction] []
                   (actionPerformed [evt] (f evt)))]
      (doseq [[k v] args]
@@ -202,24 +206,24 @@
 
 (defn key-stroke
   "Returns the key stroke for the given key code and the modifiers if given."
-  ([keycode]
+  (^KeyStroke [keycode]
    (KeyStroke/getKeyStroke keycode))
-  ([keycode & modifiers]
+  (^KeyStroke [keycode & modifiers]
    (KeyStroke/getKeyStroke keycode (reduce + (map modifier-mask-keys modifiers)))))
 
 (defn get-input-map
   "Returns the input map of the component."
-  ([c]
+  (^InputMap [c]
    (.getInputMap c))
-  ([c k]
+  (^InputMap [c k]
    (.getInputMap c k)))
 
 (defn add-key-binding
   "Adds a key binding for an action to the input map of the component."
-  ([c binding-name stroke action]
+  ([^JComponent c ^String binding-name ^KeyStroke stroke ^Action action]
    (.put (.getActionMap c) binding-name action)
    (.put (get-input-map c) stroke binding-name))
-  ([c focus-key binding-name stroke action]
+  ([^JComponent c focus-key ^String binding-name ^KeyStroke stroke ^Action action]
    (.put (.getActionMap c) binding-name action)
    (.put (get-input-map c focus-key) stroke binding-name)))
 
@@ -232,19 +236,19 @@
   []
   (->>
     (UIManager/getInstalledLookAndFeels)
-    (map (fn [lnf] [(.getName lnf) (.getClassName lnf)]))
+    (map (fn [^LookAndFeel lnf] [(.getName lnf) (.getClassName lnf)]))
     (reduce (fn [map [k v]] (assoc map k v)) {})))
 
 (defn look-and-feel-available?
   "Checks the availability of the given look and feel by name."
-  ([lnf]
+  ([^LookAndFeel lnf]
    (look-and-feel-available? (installed-look-and-feels) lnf))
-  ([installed-lnfs lnf]
+  ([installed-lnfs ^LookAndFeel lnf]
    (contains? installed-lnfs lnf)))
 
 (defn set-look-and-feel
   "Sets the look and feel given by for the given frame (if it is available)."
-  [frame lnf]
+  [^JFrame frame ^LookAndFeel lnf]
   (let [installed-lnfs (installed-look-and-feels)]
     (when (look-and-feel-available? installed-lnfs lnf)
       (UIManager/setLookAndFeel (installed-lnfs lnf))
@@ -256,7 +260,7 @@
 
 (defn image-icon
   "Creates an image icon from the image data of the given URL."
-  [url args]
+  ^ImageIcon [^URL url args]
   (init-swing (ImageIcon. url) args))
 
 ;;;
@@ -265,7 +269,7 @@
 
 (defn titled-border
   "Creates a titled border."
-  [title]
+  ^TitledBorder [^String title]
   (BorderFactory/createTitledBorder title))
 
 ;;;
@@ -274,12 +278,12 @@
 
 (defn show-component
   "Shows the component by setting its visibility to true."
-  [c]
+  [^Component c]
   (.setVisible c true))
 
 (defn hide-component
   "Hides the component by setting its visibility to false."
-  [c]
+  [^Component c]
   (.setVisible c false))
 
 ;;;
@@ -288,7 +292,7 @@
 
 (defn label
   "Creates a label."
-  [args]
+  ^JLabel [args]
   (init-swing (JLabel.) args))
 
 ;;
@@ -297,43 +301,43 @@
 
 (defn set-editable
   "Sets whether the user can edit the text component."
-  [c value]
+  [^JTextComponent c value]
   (.setEditable c value))
 
 (defn editable?
   "Checks whether the user can edit text component."
-  [c]
+  [^JTextComponent c]
   (.isEditable c))
 
 ; getter and setter for (typed) field values
 (defn get-text
   "Returns the text component value as a string."
-  [c]
+  ^String [^JTextComponent c]
   (.getText c))
 
 (defn set-text
   "Sets the text component value to 's'."
-  [c s]
+  [^JTextComponent c ^String s]
   (.setText c s))
 
 (defn set-value
   "Sets the formatted text field value to the formatted value 'v'."
-  [c v]
+  [^JFormattedTextField c v]
   (.setValue c v))
 
 (defn select-all
   "Selects all characters in the text component."
-  [c]
+  [^JTextComponent c]
   (.selectAll c))
 
 (defn get-number
   "Returns the field value as a number."
-  [field]
+  ^Number [^JFormattedTextField field]
   (.parse (NumberFormat/getNumberInstance) (.getText field)))
 
 (defn get-integer
   "Returns the field value as an integer."
-  [field]
+  ^Integer [^JFormattedTextField field]
   (.parse (NumberFormat/getIntegerInstance) (.getText field)))
 
 (defn set-focus-lost-behaviour
@@ -341,99 +345,99 @@
    Possible values are defined in JFormattedTextField as COMMIT_OR_REVERT (the default),
    COMMIT (commit if valid, otherwise leave everything the same), PERSIST (do nothing),
    and REVERT (change the text to reflect the value)."
-  [c value]
+  [^JFormattedTextField c value]
   (.setFocusLostBehaviour c value))
 
 (defn commit-edit
   "Sets the value to the object represented by the field's text, as determined by the field's formatter.
    If the text is invalid, the value remains the same and a ParseException is thrown."
-  [c]
+  [^JFormattedTextField c]
   (.commitValue c))
 
 (defn edit-valid?
   "Returns true if the formatter considers the current text to be valid, as determined by the field's formatter."
-  [c]
+  [^JFormattedTextField c]
   (.isEditValid c))
 
 (defn set-allows-invalid
   "Sets whether the value being edited is allowed to be invalid for a length of time."
-  [c value]
-  (.setAllowsInvalid c))
+  [^DefaultFormatter c value]
+  (.setAllowsInvalid c value))
 
 (defn allows-invalid?
   "Checks whether the value being edited is allowed to be invalid for a length of time."
-  [c]
+  [^DefaultFormatter c]
   (.getAllowsInvalid c))
 
 (defn to-value
   "Converts the given string s to a value using the given formatter."
-  [fmt s]
+  ^Object [^DefaultFormatter fmt ^String s]
   (.stringToValue fmt s))
 
 (defn to-string
   "Converts the given value v to a string using the given formatter."
-  [fmt v]
+  ^String [^DefaultFormatter fmt ^Object v]
   (.valueToString fmt v))
 
 (defn mask-formatter
   "Creates a mask formatter for the given pattern."
-  [s]
+  ^MaskFormatter [^String s]
   (MaskFormatter. s))
 
 (defn number-field
   "Creates a number field."
-  ([]
+  (^JFormattedTextField []
    (JFormattedTextField. (NumberFormat/getNumberInstance)))
-  ([args]
+  (^JFormattedTextField [args]
    (init-swing (JFormattedTextField. (NumberFormat/getNumberInstance)) args)))
 
 (defn integer-field
   "Creates an integer field."
-  ([]
+  (^JFormattedTextField []
    (JFormattedTextField. (NumberFormat/getIntegerInstance)))
-  ([args]
+  (^JFormattedTextField [args]
    (init-swing (JFormattedTextField. (NumberFormat/getIntegerInstance)) args)))
 
 (defn formatted-text-field
   "Creates a text field."
-  ([^Format fmt]
+  (^JFormattedTextField [^Format fmt]
    (JFormattedTextField. fmt))
-  ([^Format fmt args]
+  (^JFormattedTextField [^Format fmt args]
    (init-swing (JFormattedTextField. fmt) args)))
 
 (defn text-field
   "Creates a text field."
-  ([]
+  (^JTextField []
    (JTextField.))
-  ([args]
+  (^JTextField [args]
    (init-swing (JTextField.) args)))
 
 (defn password-field
   "Creates a password field."
-  ([]
+  (^JPasswordField []
    (JPasswordField.))
-  ([args]
+  (^JPasswordField [args]
    (init-swing (JPasswordField.) args)))
 
 (defn text-area
   "Creates a text area."
-  ([]
+  (^JTextArea []
    (JTextArea.))
-  ([args]
+  (^JTextArea [args]
    (init-swing (JTextArea.) args)))
 
 (defn editor-pane
   "Creates a editor pane."
-  ([]
+  (^JEditorPane []
    (JEditorPane.))
-  ([args]
+  (^JEditorPane [args]
    (init-swing (JEditorPane.) args)))
 
 (defn text-pane
   "Creates a text pane."
-  ([]
+  (^JTextPane []
    (JTextPane.))
-  ([args]
+  (^JTextPane [args]
    (init-swing (JTextPane.) args)))
 
 ;;
@@ -442,55 +446,55 @@
 
 (defn button
   "Creates a button."
-  ([]
+  (^JButton []
    (JButton.))
-  ([args]
+  (^JButton [args]
    (init-swing (JButton.) args)))
 
 (defn toggle-button
   "Creates a toggle button."
-  ([]
+  (^JToggleButton []
    (JToggleButton.))
-  ([args]
+  (^JToggleButton [args]
    (init-swing (JToggleButton.) args)))
 
 (defn check-box
   "Creates a check box."
-  ([]
+  (^JCheckBox []
    (JCheckBox.))
-  ([args]
+  (^JCheckBox [args]
    (init-swing (JCheckBox.) args)))
 
 (defn radio-button
   "Creates a radio button."
-  ([]
+  (^JRadioButton []
    (JRadioButton.))
-  ([args]
+  (^JRadioButton [args]
    (init-swing (JRadioButton.) args)))
 
 (defn button-group
   "Creates a button group."
-  [args items]
+  ^ButtonGroup [args items]
   (init-swing (ButtonGroup.) args items))
 
 (defn slider
   "Creates a slider."
-  ([]
+  (^JSlider []
    (JSlider.))
-  ([args]
+  (^JSlider [args]
    (init-swing (JSlider.) args)))
 
 (defn spinner
   "Creates a spinner."
-  ([]
+  (^JSpinner []
    (JSpinner.))
-  ([args]
+  (^JSpinner [args]
    (init-swing (JSpinner.) args)))
 
 (defn combo-box
   "Creates a combo box."
-  [args items]
-  (let [c (init-swing (JComboBox.) args)]
+  ^JComboBox [args items]
+  (let [^JComboBox c (init-swing (JComboBox.) args)]
     (if (not (nil? items))
       (doseq [item items]
         (.addItem c item)))
@@ -498,30 +502,30 @@
 
 (defn progress-bar
   "Creates a progress bar."
-  ([]
+  (^JProgressBar []
    (JProgressBar.))
-  ([args]
+  (^JProgressBar [args]
    (init-swing (JProgressBar.) args)))
 
 (defn table
   "Creates a table."
-  ([]
+  (^JTable []
    (JTable.))
-  ([args]
+  (^JTable [args]
    (init-swing (JTable.) args)))
 
 (defn j-list
   "Creates a swing list component."
-  ([]
+  (^JList []
    (JList.))
-  ([args]
+  (^JList [args]
    (init-swing (JList.) args)))
 
 (defn j-tree
   "Creates a swing tree component."
-  ([]
+  (^JTree []
    (JTree.))
-  ([args]
+  (^JTree [args]
    (init-swing (JTree.) args)))
 
 (defn get-selection-model
@@ -536,141 +540,142 @@
 
 (defn separator
   "Creates a separator."
-  ([]
+  (^JSeparator []
    (JSeparator.))
-  ([args]
+  (^JSeparator [args]
    (init-swing (JSeparator.) args)))
 
 (defn popup-menu
   "Creates a popup menu."
-  [args items]
+  ^JPopupMenu [args items]
   (init-swing (JPopupMenu.) args items))
 
 (defn menu-bar
   "Creates a menu bar."
-  [args items]
+  ^JMenuBar [args items]
   (init-swing (JMenuBar.) args items))
 
 (defn menu
   "Creates a menu."
-  [args items]
+  ^JMenu [args items]
   (init-swing (JMenu.) args items))
 
 (defn menu-item
   "Creates a menu item."
-  [args]
+  ^JMenuItem [args]
   (init-swing (JMenuItem.) args))
 
 (defn checkbox-menu-item
   "Creates a check box menu item."
-  ([]
+  (^JCheckBoxMenuItem []
    (JCheckBoxMenuItem.))
-  ([args]
+  (^JCheckBoxMenuItem [args]
    (init-swing (JCheckBoxMenuItem.) args)))
 
 (defn radio-button-menu-item
   "Creates a radio button menu item."
-  ([]
+  (^JRadioButtonMenuItem []
    (JRadioButtonMenuItem.))
-  ([args]
+  (^JRadioButtonMenuItem [args]
    (init-swing (JRadioButtonMenuItem.) args)))
 
 (defn panel
   "Creates a panel."
-  [args items]
+  ^JPanel [args items]
   (init-swing (JPanel.) args items))
 
 (defn split-pane
   "Creates a split pane."
-  [args items]
+  ^JSplitPane [args items]
   (init-swing (JSplitPane.) args items))
 
 (defn horizontal-split-pane
   "Creates a horizontal split pane."
-  [args items]
+  ^JSplitPane [args items]
   (init-swing (JSplitPane. (swing-keys :horizontal)) args items))
 
 (defn vertical-split-pane
   "Creates a vertical split pane."
-  [args items]
+  ^JSplitPane [args items]
   (init-swing (JSplitPane. (swing-keys :vertical)) args items))
 
 (defn scroll-pane
   "Creates a scroll pane."
-  ([item]
+  (^JScrollPane [item]
    (JScrollPane. item))
-  ([item args]
+  (^JScrollPane [item args]
    (let [c (JScrollPane. item)]
      (b/set-properties! c args)
      c)))
 
 (defn tabbed-pane
   "Creates a tabbed pane."
-  [args items]
-  (let [ c (init-swing (JTabbedPane.) args)]
+  ^JTabbedPane [args items]
+  (let [^JTabbedPane c (init-swing (JTabbedPane.) args)]
     (if (not (nil? items))
-      (doseq [[title component] items]
+      (doseq [[^String title ^Component component] items]
         (.addTab c title component)))
     c))
 
 (defn layered-pane
   "Creates a layered pane."
-  [args items]
+  ^JLayeredPane [args items]
   (init-swing (JLayeredPane.) args items))
 
 (defn tool-bar
   "Creates a tool bar."
-  [args items]
+  ^JToolBar [args items]
   (init-swing (JToolBar.) args items))
 
 (defn canvas-panel
   "Creates a panel into which the paint function can paint using the provided graphics context."
-  [paint-fn args items]
+  ^JPanel [paint-fn args items]
   (init-swing
     (proxy [javax.swing.JPanel] []
       (paintComponent [^java.awt.Graphics g]
-        (proxy-super paintComponent g)
-        (paint-fn g)))
-    args items))
+        (let [^javax.swing.JComponent this this]
+          (proxy-super paintComponent g)
+          (paint-fn g))))
+      args items))
 
 (defn frame
   "Creates a frame."
-  [args cp-items]
+  ^JFrame [args cp-items]
   (let [c (JFrame.)]
     (b/set-properties! c args)
     (if (seq cp-items)
-      (doseq [item cp-items]
-        (.add (.getContentPane c) item)))
+      (doseq [^Component item cp-items]
+        (.add ^Container (.getContentPane c) item)))
     c))
 
 (defn window
   "Creates a window."
-  [args cp-items]
+  ^JWindow [args cp-items]
   (let [c (JWindow.)]
     (b/set-properties! c args)
     (if (seq cp-items)
-      (doseq [item cp-items]
-        (.add (.getContentPane c) item)))
+      (doseq [^Component item cp-items]
+        (.add ^Container (.getContentPane c) item)))
     c))
 
 (defn dialog
   "Creates a dialog. If a frame is provided, the dialog is centered on the frame."
-  ([args cp-items]
+  (^JDialog [args cp-items]
    (let [c (JDialog.)]
      (b/set-properties! c args)
      (if (seq cp-items)
-       (doseq [item cp-items]
+       (doseq [^Component item cp-items]
          (.add (.getContentPane c) item)))
      (.pack c)
      c))
-  ([frame args cp-items]
-   (let [c (JDialog. frame)]
+  (^JDialog [parent args cp-items]
+   (let [c (JDialog. parent)]
      (b/set-properties! c args)
      (if (seq cp-items)
-       (doseq [item cp-items]
+       (doseq [^Component item cp-items]
          (.add (.getContentPane c) item)))
      (.pack c)
-     (.setLocationRelativeTo c frame)
+     (.setLocationRelativeTo c parent)
      c)))
 
 ;;
@@ -680,7 +685,7 @@
 ;;
 (defn file-open-dialog
   "Returns the filename to open or nil if the dialog was aborted."
-  ([filename]
+  ([^String filename]
    (let [d (JFileChooser. filename)]
      (let [state (.showOpenDialog d nil)]
        (if (= state JFileChooser/APPROVE_OPTION)
@@ -689,7 +694,7 @@
 
 (defn file-save-dialog
   "Returns the filename to save or nil if the dialog was aborted."
-  ([filename]
+  ([^String filename]
    (let [d (JFileChooser. filename)]
      (let [state (.showSaveDialog d nil)]
        (if (= state JFileChooser/APPROVE_OPTION)
@@ -698,60 +703,60 @@
 
 (defn color-choose-dialog
   "Creates a color choose dialog."
-  ([c title color]
+  (^Color [^Component c ^String title ^Color color]
    (JColorChooser/showDialog c title color)))
 
 (defn message-dialog
   "Creates a message dialog."
-  ([text]
+  ([^String text]
    (JOptionPane/showMessageDialog nil text))
-  ([text title type]
+  ([^String text ^String title type]
    (JOptionPane/showMessageDialog
      nil text title (option-pane-message-keys type)))
-  ([text title type icon]
+  ([^String text ^String title type icon]
    (JOptionPane/showMessageDialog
      nil text title (option-pane-message-keys type) icon)))
 
 (defn confirm-dialog
   "Creates a confirm dialog."
-  ([text title options]
+  ([^String text ^String title options]
    (JOptionPane/showConfirmDialog nil text title options))
-  ([text title options type]
+  ([^String text ^String title options type]
    (JOptionPane/showConfirmDialog
      nil text title options (option-pane-message-keys type)))
-  ([text title options type icon]
+  ([^String text ^String title options type icon]
    (JOptionPane/showConfirmDialog
      nil text title options (option-pane-message-keys type) icon)))
 
 (defn input-dialog
   "Creates an input dialog."
-  ([text]
+  ([^String text]
    (JOptionPane/showInputDialog text))
-  ([text title]
+  ([^String text ^String title]
    (JOptionPane/showInputDialog nil text title))
-  ([text title type]
+  ([^String text ^String title type]
    (JOptionPane/showInputDialog
      nil text title (option-pane-message-keys type)))
-  ([text title type icon values initial]
+  ([^String text ^String title type icon values initial]
    (JOptionPane/showInputDialog
      nil text title (option-pane-message-keys type) icon (into-array values) initial)))
 
 (defn option-pane
   "Creates an option pane dialog."
-  ([]
+  (^JOptionPane []
    (JOptionPane.))
-  ([args]
+  (^JOptionPane [args]
    (init-swing (JOptionPane.) args)))
 
 ; Renderer
 (defn table-cell-renderer
   "Creates a cell renderer with the render function 'rf'."
-  ([rf args]
+  (^DefaultTableCellRenderer [rf args]
    (proxy [DefaultTableCellRenderer] []
      (getTableCellRendererComponent [table value isSelected hasFocus row column]
        (let [result (proxy-super getTableCellRendererComponent table value isSelected hasFocus row column)]
          (b/set-properties! this args)
-         (.setText this (rf value))
+         (.setText this ^String (rf value))
          result)))))
 
 
@@ -815,7 +820,7 @@
 ; DefaultMutableTreeNode
 (defn tree-node
   "Creates a tree node."
-  [obj args items]
+  ^DefaultMutableTreeNode [obj args items]
   (init-swing (DefaultMutableTreeNode. obj) args items))
 
 ;;
@@ -825,36 +830,36 @@
 ;; CardLayout
 (defn card-layout
   "Creates a card layout."
-  [args items]
+  ^CardLayout [args items]
   (init-swing (CardLayout.) args items))
 
 (defn first-card
   "Shows the first card on the container."
-  [cl container]
+  [^CardLayout cl ^Container container]
   (.first cl container))
 
 (defn next-card
   "Shows the next card on the container."
-  [cl container]
+  [^CardLayout cl ^Container container]
   (.next cl container))
 
 (defn previous-card
   "Shows the previous card on the container."
-  [cl container]
+  [^CardLayout cl ^Container container]
   (.previous cl container))
 
 (defn last-card
   "Shows the last card on the container."
-  [cl container]
+  [^CardLayout cl ^Container container]
   (.last cl container))
 
 (defn show-card
   "Shows the card on the container with the given name."
-  [cl container name]
+  [^CardLayout cl ^Container container ^String name]
   (.show cl container name))
 
 ;; MigLayout
 (defn mig-layout
   "Creates a mig layout."
-  [args]
+  ^MigLayout [args]
   (init-swing (MigLayout.) args))
