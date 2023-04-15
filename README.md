@@ -6,6 +6,9 @@ It wraps many components and methods form java.awt and javax.swing packages and 
 
 For an example application with a UI build with clj.swing see [Annuity](https://github.com/lsolbach/Annuity), an application to calculate annuity credits/loans.
 
+[![Clojars Project](https://img.shields.io/clojars/v/org.soulspace.clj/clj.swing.svg)](https://clojars.org/org.soulspace.clj/clj.swing)
+[![cljdoc badge](https://cljdoc.org/badge/org.soulspace.clj/clj.swing)](https://cljdoc.org/d/org.soulspace.clj/clj.swing)
+
 
 Usage
 -----
