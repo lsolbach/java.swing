@@ -130,7 +130,10 @@
    :ok            JOptionPane/OK_OPTION
    :closed        JOptionPane/CLOSED_OPTION})
 
-; Helpers
+;;;
+;;; Helpers
+;;;
+
 (defn init-swing
   "Intitializes a swing component with the arguments and items."
   ([c args]
@@ -150,7 +153,12 @@
          (.add c item))))
    c))
 
-; InputVerifier
+; TODO add init-menu
+
+;;;
+;;; InputVerifier
+;;;
+
 (defn input-verifier
   "Creates an input verifier with the verify function 'vf' and the yield function 'yf'."
   [vf yf & args]
@@ -173,7 +181,10 @@
     (shouldYieldFocus [c]
       (.verify this c))))
 
-; Actions
+;;;
+;;; Actions
+;;;
+
 (defn action
   "Creates an action."
   ([f]
@@ -212,6 +223,10 @@
    (.put (.getActionMap c) binding-name action)
    (.put (get-input-map c focus-key) stroke binding-name)))
 
+;;;
+;;; Look and feel
+;;;
+
 (defn installed-look-and-feels
   "Returns the installed look anf feels as a sequence of maps from names to class names."
   []
@@ -227,7 +242,6 @@
   ([installed-lnfs lnf]
    (contains? installed-lnfs lnf)))
 
-; Look and feel
 (defn set-look-and-feel
   "Sets the look and feel given by for the given frame (if it is available)."
   [frame lnf]
@@ -236,17 +250,27 @@
       (UIManager/setLookAndFeel (installed-lnfs lnf))
       (SwingUtilities/updateComponentTreeUI frame))))
 
-; Icons
+;;;
+;;; Icons
+;;;
+
 (defn image-icon
   "Creates an image icon from the image data of the given URL."
   [url args]
   (init-swing (ImageIcon. url) args))
 
-; Borders
+;;;
+;;; Borders
+;;;
+
 (defn titled-border
   "Creates a titled border."
   [title]
   (BorderFactory/createTitledBorder title))
+
+;;;
+;;; Component visibility
+;;;
 
 (defn show-component
   "Shows the component by setting its visibility to true."
@@ -258,14 +282,19 @@
   [c]
   (.setVisible c false))
 
+;;;
+;;; Swing Components
+;;;
 
-; Swing Components
 (defn label
   "Creates a label."
   [args]
   (init-swing (JLabel.) args))
 
-; JTextComponent
+;;
+;; Text components
+;;
+
 (defn set-editable
   "Sets whether the user can edit the text component."
   [c value]
@@ -406,6 +435,10 @@
    (JTextPane.))
   ([args]
    (init-swing (JTextPane.) args)))
+
+;;
+;; Buttons
+;;
 
 (defn button
   "Creates a button."
@@ -642,6 +675,7 @@
 
 ;;
 ;; standard dialogs
+;;
 ;; TODO add frame parameter to the dialogs
 ;;
 (defn file-open-dialog
@@ -722,37 +756,61 @@
 
 
 ; mapseq ColumnSpec
-;[{:label "Text" :key :text :edit false :converter function}]
+;[{:label "Text" :key :text :editable false :converter function}]
 
-; TODO use labeled keyword arguments instead of a map
-; Default models
+;;;
+;;; Default models
+;;;
+
+(defn- get-data
+  "Access data for the default models."
+  [data path]
+  (if (fn/reftype? data)
+    (if (seq path)
+      (get-in @data path)
+      @data)
+    (if (seq path)
+      (get-in data path)
+      data)))
+
 (defn mapseq-table-model
-  "Creates a table model backed with a sequence of maps. The col-spec map may contain "
-  [col-spec data]
-  (proxy [AbstractTableModel] []
-    (getColumnCount [] (count col-spec))
-    (getRowCount [] (if (fn/reftype? data)
-                      (count @data)
-                      (count data)))
-    (isCellEditable [_ col] (:edit (nth col-spec col) false))
-    (getColumnName [col] (:label (nth col-spec col) (str "Label " col)))
-    (getValueAt [row col] ((:converter (nth col-spec col) identity)
-                           ((:key (nth col-spec col))
-                             (if (fn/reftype? data)
-                               (nth @data row)
-                               (nth data row)))))))
+  "Creates a table model backed with a collection of maps.
+   The given 'data' can be a data structure or a ref type (e.g. an atom).
+   If a vector of keys is given as 'path', the collection of maps is looked up by this keys in data.
+
+   The col-spec map may contain the keys:
+
+   :label - the label of the column
+ 
+   :key - the key of the value for the column in the date
+
+   :editable - if the column is editable
+  
+   :converter - an optional converter function for the value"
+  ([col-spec data]
+   (mapseq-table-model col-spec data nil))
+  ([col-spec data path]
+   (proxy [AbstractTableModel] []
+     (getColumnCount [] (count col-spec))
+     (getRowCount [] (count (get-data data path)))
+     (isCellEditable [_ col] (:edit (nth col-spec col) false))
+     (getColumnName [col] (:label (nth col-spec col) (str "Label " col)))
+     (getValueAt [row col] ((:converter (nth col-spec col) identity)
+                            ((:key (nth col-spec col))
+                             (nth (get-data data path) row)))))))
 
 ; TODO add converter like in mapseq-table-model?
 (defn seq-list-model
-  "Creates a list model backed with the 'data' sequence."
+  "Creates a list model backed with the 'data' sequence.
+ 
+   The given 'data' can be a data structure or a ref type (e.g. an atom).
+   If a vector of keys is given as 'path', the sequence is looked up by this keys in data."
   ([data]
+   (seq-list-model data nil))
+  ([data path]
    (proxy [AbstractListModel] []
-     (getElementAt [idx] (if (fn/reftype? data)
-                           (nth @data idx)
-                           (nth data idx)))
-     (getSize [] (if (fn/reftype? data)
-                   (count @data)
-                   (count data))))))
+     (getElementAt [idx] (nth (get-data data path) idx))
+     (getSize [] (count (get-data data path))))))
 
 ; DefaultMutableTreeNode
 (defn tree-node
