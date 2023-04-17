@@ -1,6 +1,11 @@
 Changelog
 =========
 
+Version 0.8.3
+-------------
+* Removed (wrong) type hints in look-and-feel functions
+* added get-percent to get a NumberFormat instance
+
 Version 0.8.2
 -------------
 * enhanced mapseq-table-model and seq-list-model to work with global state atoms

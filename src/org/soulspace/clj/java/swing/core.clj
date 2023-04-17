@@ -25,8 +25,8 @@
             JRadioButton JRadioButtonMenuItem JSeparator JScrollPane JSlider JSpinner
             JSplitPane JTabbedPane JTable JTextArea JTextField JTextPane
             JToggleButton JToolBar JTree JWindow
-            KeyStroke ListSelectionModel LookAndFeel SwingConstants SwingUtilities
-            UIManager WindowConstants]
+            KeyStroke ListSelectionModel LookAndFeel LookAndFeelInfo
+            SwingConstants SwingUtilities UIManager WindowConstants]
            [javax.swing.border TitledBorder]
            [javax.swing.table AbstractTableModel DefaultTableCellRenderer]
            [javax.swing.text DefaultFormatter JTextComponent MaskFormatter]
@@ -236,19 +236,19 @@
   []
   (->>
     (UIManager/getInstalledLookAndFeels)
-    (map (fn [^LookAndFeel lnf] [(.getName lnf) (.getClassName lnf)]))
+    (map (fn [lnf] [(.getName lnf) (.getClassName lnf)]))
     (reduce (fn [map [k v]] (assoc map k v)) {})))
 
 (defn look-and-feel-available?
   "Checks the availability of the given look and feel by name."
   ([^LookAndFeel lnf]
    (look-and-feel-available? (installed-look-and-feels) lnf))
-  ([installed-lnfs ^LookAndFeel lnf]
+  ([installed-lnfs lnf]
    (contains? installed-lnfs lnf)))
 
 (defn set-look-and-feel
   "Sets the look and feel given by for the given frame (if it is available)."
-  [^JFrame frame ^LookAndFeel lnf]
+  [^JFrame frame lnf]
   (let [installed-lnfs (installed-look-and-feels)]
     (when (look-and-feel-available? installed-lnfs lnf)
       (UIManager/setLookAndFeel (installed-lnfs lnf))
@@ -340,32 +340,41 @@
   ^Integer [^JFormattedTextField field]
   (.parse (NumberFormat/getIntegerInstance) (.getText field)))
 
+(defn get-percent
+  "Returns the field value as a percent instance."
+  ^Integer [^JFormattedTextField field]
+  (.parse (NumberFormat/getPercentInstance) (.getText field)))
+
 (defn set-focus-lost-behaviour
   "Specifies the outcome of a field losing the focus.
-   Possible values are defined in JFormattedTextField as COMMIT_OR_REVERT (the default),
-   COMMIT (commit if valid, otherwise leave everything the same), PERSIST (do nothing),
-   and REVERT (change the text to reflect the value)."
+   Possible values are defined in JFormattedTextField as COMMIT_OR_REVERT
+   (the default), COMMIT (commit if valid, otherwise leave everything the same),
+   PERSIST (do nothing), and REVERT (change the text to reflect the value)."
   [^JFormattedTextField c value]
   (.setFocusLostBehaviour c value))
 
 (defn commit-edit
-  "Sets the value to the object represented by the field's text, as determined by the field's formatter.
-   If the text is invalid, the value remains the same and a ParseException is thrown."
+  "Sets the value to the object represented by the field's text,
+   as determined by the field's formatter. If the text is invalid,
+   the value remains the same and a ParseException is thrown."
   [^JFormattedTextField c]
   (.commitValue c))
 
 (defn edit-valid?
-  "Returns true if the formatter considers the current text to be valid, as determined by the field's formatter."
+  "Returns true if the formatter considers the current text to be valid,
+   as determined by the field's formatter."
   [^JFormattedTextField c]
   (.isEditValid c))
 
 (defn set-allows-invalid
-  "Sets whether the value being edited is allowed to be invalid for a length of time."
+  "Sets whether the value being edited is allowed to be invalid
+   for a length of time."
   [^DefaultFormatter c value]
   (.setAllowsInvalid c value))
 
 (defn allows-invalid?
-  "Checks whether the value being edited is allowed to be invalid for a length of time."
+  "Checks whether the value being edited is allowed to be invalid
+   for a length of time."
   [^DefaultFormatter c]
   (.getAllowsInvalid c))
 
