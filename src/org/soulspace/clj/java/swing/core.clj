@@ -25,7 +25,7 @@
             JRadioButton JRadioButtonMenuItem JSeparator JScrollPane JSlider JSpinner
             JSplitPane JTabbedPane JTable JTextArea JTextField JTextPane
             JToggleButton JToolBar JTree JWindow
-            KeyStroke ListSelectionModel LookAndFeel LookAndFeelInfo
+            KeyStroke ListSelectionModel LookAndFeel
             SwingConstants SwingUtilities UIManager WindowConstants]
            [javax.swing.border TitledBorder]
            [javax.swing.table AbstractTableModel DefaultTableCellRenderer]
