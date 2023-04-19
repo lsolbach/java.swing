@@ -38,8 +38,10 @@
   [adapter args & fn-bindings]
   )
 
+;;;
+;;; Listeners
+;;;
 
-; Listeners
 (defn action-listener
   "Creates an action listener. Calls function 'f' on performing the action."
   [f & args]
@@ -267,7 +269,10 @@
   (proxy [WindowListener] []
     (windowStateChanged [event] (apply f event args))))
 
-; Add listeners
+;;;
+;;; Add listeners
+;;;
+
 (defn add-component-listener
   "Adds a component listener to the component."
   [^java.awt.Component c ^java.awt.event.ComponentListener l]

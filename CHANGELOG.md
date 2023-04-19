@@ -1,6 +1,10 @@
 Changelog
 =========
 
+Version 0.8.4
+-------------
+* updated clj.base to 0.9.1
+
 Version 0.8.3
 -------------
 * Removed (wrong) type hints in look-and-feel functions
