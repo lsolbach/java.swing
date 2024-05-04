@@ -14,4 +14,7 @@
   (:require [clojure.test :refer :all]
             [org.soulspace.clj.java.awt.core :as awt]))
 
-;; compilation test, ensures compilation of the required namespace
+; compilation test, ensures compilation of the required namespace
+(deftest compile-test
+  (testing "Compile test"
+    (is (= 1 1)))) 
